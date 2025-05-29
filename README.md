@@ -1,2 +1,2 @@
 # Belot Counter
-a counter for belot
+a counter for the card game belot/belote
