@@ -35,7 +35,7 @@ translations = {
         'lang_toggle': "BG"
     },
     'bg': {
-        'title': "Белот Точкова Система",
+        'title': "Калкулатор за белот",
         'start_game': "Начало на игра",
         'enter_team_a': "Въведете име на отбор A",
         'enter_team_b': "Въведете име на отбор B",
@@ -113,7 +113,7 @@ class BelotGameScreen(Screen):
 
         root = FloatLayout()
 
-        bg = Image(source='/mnt/data/bce6c46f-1daa-4f72-928f-85c05d2c097e.png',
+        bg = Image(source='ezgif-2-0a163e6835.gif',
                    allow_stretch=True, keep_ratio=False,
                    size_hint=(1, 1), pos_hint={'x': 0, 'y': 0})
         root.add_widget(bg)
