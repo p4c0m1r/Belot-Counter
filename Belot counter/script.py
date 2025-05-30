@@ -2,85 +2,120 @@ from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.core.window import Window
-from kivy.uix.widget import Widget
-from kivy.uix.image import Image
-from kivy.uix.floatlayout import FloatLayout
 
-Window.size = (400, 600)
+Window.size = (720, 1280)  # Portrait 16:9
+Window.clearcolor = (0, 0, 0, 1)
 
-# Translation dictionary
+PRIMARY_COLOR = (1, 1, 1, 1)
+ACCENT_COLOR = (1, 0.15, 0.35, 1)
+BUTTON_BG = (0.1, 0.1, 0.1, 1)
+
 translations = {
     'en': {
         'title': "Belot Score Counter",
         'start_game': "Start Game",
-        'enter_team_a': "Enter Team A Name",
-        'enter_team_b': "Enter Team B Name",
+        'enter_team_a': "Team A",
+        'enter_team_b': "Team B",
         'round': "Round",
-        'submit_scores': "Submit Round Scores",
-        'undo': "Undo Last Round",
-        'restart': "Restart Game",
-        'score_error': "Please enter valid numbers.",
-        'negative_error': "Scores cannot be negative!",
-        'undo_error': "No round to undo.",
-        'undo_success': "Last round undone.",
+        'submit_scores': "Submit",
+        'undo': "Undo",
+        'restart': "Restart",
+        'score_error': "Invalid input.",
+        'negative_error': "No negative scores.",
+        'undo_error': "Nothing to undo.",
+        'undo_success': "Undone.",
         'team_a_wins': "{} wins!",
         'team_b_wins': "{} wins!",
-        'tie': "It's a tie!",
-        'game_over': "Game Over!",
-        'score_text': "{}: {}  |  {}: {}",
+        'tie': "Tie!",
+        'game_over': "Game Over",
+        'score_text': "{}: {} | {}: {}",
         'lang_toggle': "BG"
     },
     'bg': {
         'title': "Калкулатор за белот",
-        'start_game': "Начало на игра",
-        'enter_team_a': "Въведете име на отбор A",
-        'enter_team_b': "Въведете име на отбор B",
+        'start_game': "Старт",
+        'enter_team_a': "Отбор A",
+        'enter_team_b': "Отбор B",
         'round': "Рунд",
-        'submit_scores': "Запази резултатите",
-        'undo': "Отмени последния рунд",
-        'restart': "Рестартирай играта",
-        'score_error': "Моля, въведете валидни числа.",
-        'negative_error': "Точките не може да са отрицателни!",
-        'undo_error': "Няма рунд за отмяна.",
-        'undo_success': "Последният рунд е отменен.",
+        'submit_scores': "Изпрати",
+        'undo': "Назад",
+        'restart': "Рестарт",
+        'score_error': "Невалидни данни.",
+        'negative_error': "Без отрицателни точки.",
+        'undo_error': "Няма какво да се отмени.",
+        'undo_success': "Отменено.",
         'team_a_wins': "{} печели!",
         'team_b_wins': "{} печели!",
-        'tie': "Равен резултат!",
-        'game_over': "Край на играта!",
-        'score_text': "{}: {}  |  {}: {}",
+        'tie': "Равенство!",
+        'game_over': "Край",
+        'score_text': "{}: {} | {}: {}",
         'lang_toggle': "EN"
     }
 }
 
 current_language = 'en'
 
+class Input(TextInput):
+    def __init__(self, **kwargs):
+        super().__init__(
+            multiline=False,
+            font_size='18sp',
+            background_color=(0, 0, 0, 0.6),
+            foreground_color=PRIMARY_COLOR,
+            cursor_color=ACCENT_COLOR,
+            hint_text_color=(1, 1, 1, 0.3),
+            padding=[12, 10],
+            size_hint=(1, None),
+            height=60,
+            **kwargs
+        )
+
+class KButton(Button):
+    def __init__(self, **kwargs):
+        kwargs.setdefault('background_normal', '')
+        kwargs.setdefault('background_color', ACCENT_COLOR)
+        kwargs.setdefault('color', PRIMARY_COLOR)
+        kwargs.setdefault('font_size', '18sp')
+        kwargs.setdefault('size_hint', (1, None))
+        kwargs.setdefault('height', 60)
+        super().__init__(**kwargs)
+
 class StartScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.layout = BoxLayout(orientation='vertical', padding=30, spacing=20)
+        anchor = AnchorLayout()
+        layout = BoxLayout(orientation='vertical', spacing=20, size_hint=(0.9, 0.9))
 
-        self.title_label = Label(font_size='28sp', bold=True, size_hint=(1, 0.2))
+        self.title_label = Label(font_size='32sp', bold=True, color=PRIMARY_COLOR, size_hint=(1, None), height=80)
+        self.team_a_input = Input()
+        self.team_b_input = Input()
 
-        self.team_a_input = TextInput(multiline=False, size_hint=(1, 0.15), font_size='16sp')
-        self.team_b_input = TextInput(multiline=False, size_hint=(1, 0.15), font_size='16sp')
-
-        self.start_btn = Button(size_hint=(1, 0.2), font_size='18sp', background_color=(0.1, 0.6, 0.1, 1))
+        self.start_btn = KButton()
         self.start_btn.bind(on_press=self.start_game)
 
-        self.lang_btn = Button(size_hint=(1, 0.1), font_size='16sp', background_color=(0.3, 0.3, 0.3, 1))
+        self.lang_btn = Button(
+            background_normal='',
+            background_color=BUTTON_BG,
+            color=PRIMARY_COLOR,
+            font_size='16sp',
+            size_hint=(1, None),
+            height=50
+        )
         self.lang_btn.bind(on_press=self.toggle_language)
 
-        self.layout.add_widget(self.title_label)
-        self.layout.add_widget(self.team_a_input)
-        self.layout.add_widget(self.team_b_input)
-        self.layout.add_widget(self.start_btn)
-        self.layout.add_widget(self.lang_btn)
+        layout.add_widget(self.title_label)
+        layout.add_widget(self.team_a_input)
+        layout.add_widget(self.team_b_input)
+        layout.add_widget(self.start_btn)
+        layout.add_widget(self.lang_btn)
 
-        self.add_widget(self.layout)
+        anchor.add_widget(layout)
+        self.add_widget(anchor)
         self.refresh_texts()
 
     def refresh_texts(self):
@@ -95,11 +130,10 @@ class StartScreen(Screen):
         App.get_running_app().switch_language()
 
     def start_game(self, instance):
-        team_a = self.team_a_input.text.strip() or "Team A"
-        team_b = self.team_b_input.text.strip() or "Team B"
-        self.manager.get_screen('game').set_team_names(team_a, team_b)
+        a = self.team_a_input.text.strip() or "Team A"
+        b = self.team_b_input.text.strip() or "Team B"
+        self.manager.get_screen('game').set_team_names(a, b)
         self.manager.current = 'game'
-
 
 class BelotGameScreen(Screen):
     def __init__(self, **kwargs):
@@ -111,51 +145,42 @@ class BelotGameScreen(Screen):
         self.round_num = 1
         self.history = []
 
-        root = FloatLayout()
+        anchor = AnchorLayout()
+        layout = BoxLayout(orientation='vertical', spacing=15, size_hint=(0.9, 0.95))
 
-        bg = Image(source='ezgif-2-0a163e6835.gif',
-                   allow_stretch=True, keep_ratio=False,
-                   size_hint=(1, 1), pos_hint={'x': 0, 'y': 0})
-        root.add_widget(bg)
+        self.header = Label(font_size='28sp', bold=True, color=PRIMARY_COLOR, size_hint=(1, None), height=70)
+        self.round_label = Label(font_size='20sp', color=(0.8, 0.8, 0.8, 1), size_hint=(1, None), height=40)
 
-        self.layout = BoxLayout(orientation='vertical', padding=20, spacing=10,
-                                size_hint=(1, 1), pos_hint={'x': 0, 'y': 0})
-
-        self.header = Label(font_size='24sp', bold=True, size_hint=(1, 0.1), color=(1, 1, 1, 1))
-        self.layout.add_widget(self.header)
-
-        self.round_label = Label(font_size='20sp', size_hint=(1, 0.1), color=(1, 1, 1, 1))
-        self.layout.add_widget(self.round_label)
-
-        input_grid = GridLayout(cols=2, spacing=10, size_hint=(1, 0.2))
-        self.input_a = TextInput(input_filter='int', multiline=False, font_size='16sp', background_color=(0, 0, 0, 0.5))
-        self.input_b = TextInput(input_filter='int', multiline=False, font_size='16sp', background_color=(0, 0, 0, 0.5))
+        input_grid = GridLayout(cols=2, spacing=10, size_hint=(1, None), height=60)
+        self.input_a = Input()
+        self.input_b = Input()
         input_grid.add_widget(self.input_a)
         input_grid.add_widget(self.input_b)
-        self.layout.add_widget(input_grid)
 
-        self.submit_btn = Button(size_hint=(1, 0.15), font_size='16sp', background_color=(0.1, 0.4, 0.8, 0.9))
+        self.submit_btn = KButton()
         self.submit_btn.bind(on_press=self.submit_scores)
-        self.layout.add_widget(self.submit_btn)
 
-        button_box = BoxLayout(size_hint=(1, 0.15), spacing=10)
-        self.undo_btn = Button(font_size='14sp', background_color=(0.7, 0.7, 0.1, 0.9))
+        control_box = BoxLayout(spacing=10, size_hint=(1, None), height=60)
+        self.undo_btn = KButton(background_color=(0.2, 0.2, 0.2, 1))
+        self.restart_btn = KButton(background_color=(0.8, 0.1, 0.1, 1))
         self.undo_btn.bind(on_press=self.undo_round)
-        self.restart_btn = Button(font_size='14sp', background_color=(0.8, 0.1, 0.1, 0.9))
         self.restart_btn.bind(on_press=self.restart_game)
-        button_box.add_widget(self.undo_btn)
-        button_box.add_widget(self.restart_btn)
-        self.layout.add_widget(button_box)
+        control_box.add_widget(self.undo_btn)
+        control_box.add_widget(self.restart_btn)
 
-        self.score_label = Label(font_size='18sp', size_hint=(1, 0.1), color=(1, 1, 1, 1))
-        self.layout.add_widget(self.score_label)
+        self.score_label = Label(font_size='18sp', color=PRIMARY_COLOR, size_hint=(1, None), height=40)
+        self.message_label = Label(font_size='16sp', color=(1, 0.4, 0.4, 1), size_hint=(1, None), height=40)
 
-        self.message_label = Label(font_size='14sp', size_hint=(1, 0.1), color=(1, 1, 1, 1))
-        self.layout.add_widget(self.message_label)
+        layout.add_widget(self.header)
+        layout.add_widget(self.round_label)
+        layout.add_widget(input_grid)
+        layout.add_widget(self.submit_btn)
+        layout.add_widget(control_box)
+        layout.add_widget(self.score_label)
+        layout.add_widget(self.message_label)
 
-        root.add_widget(self.layout)
-        self.add_widget(root)
-
+        anchor.add_widget(layout)
+        self.add_widget(anchor)
         self.refresh_texts()
 
     def refresh_texts(self):
@@ -164,13 +189,13 @@ class BelotGameScreen(Screen):
         self.submit_btn.text = t['submit_scores']
         self.undo_btn.text = t['undo']
         self.restart_btn.text = t['restart']
-        self.input_a.hint_text = f"{self.team_a_name}"
-        self.input_b.hint_text = f"{self.team_b_name}"
+        self.input_a.hint_text = self.team_a_name
+        self.input_b.hint_text = self.team_b_name
         self.update_labels()
 
-    def set_team_names(self, a_name, b_name):
-        self.team_a_name = a_name
-        self.team_b_name = b_name
+    def set_team_names(self, a, b):
+        self.team_a_name = a
+        self.team_b_name = b
         self.refresh_texts()
 
     def update_labels(self):
@@ -186,13 +211,11 @@ class BelotGameScreen(Screen):
         except ValueError:
             self.message_label.text = t['score_error']
             return
-
         if a_points < 0 or b_points < 0:
             self.message_label.text = t['negative_error']
             return
 
         self.history.append((self.team_a_score, self.team_b_score, self.round_num))
-
         self.team_a_score += a_points
         self.team_b_score += b_points
         self.round_num += 1
@@ -232,22 +255,18 @@ class BelotGameScreen(Screen):
         self.submit_btn.disabled = False
         self.update_labels()
 
-
 class BelotApp(App):
     def build(self):
-        self.sm = ScreenManager(transition=FadeTransition())
-        self.start_screen = StartScreen(name='start')
-        self.game_screen = BelotGameScreen(name='game')
-        self.sm.add_widget(self.start_screen)
-        self.sm.add_widget(self.game_screen)
-        return self.sm
+        sm = ScreenManager(transition=FadeTransition())
+        sm.add_widget(StartScreen(name='start'))
+        sm.add_widget(BelotGameScreen(name='game'))
+        return sm
 
     def switch_language(self):
         global current_language
         current_language = 'bg' if current_language == 'en' else 'en'
-        self.start_screen.refresh_texts()
-        self.game_screen.refresh_texts()
-
+        self.root.get_screen('start').refresh_texts()
+        self.root.get_screen('game').refresh_texts()
 
 if __name__ == '__main__':
     BelotApp().run()
