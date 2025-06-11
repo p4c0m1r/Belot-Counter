@@ -1,5 +1,7 @@
+# belot_app.py
+
 from kivy.app import App
-from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
+from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.anchorlayout import AnchorLayout
@@ -13,16 +15,14 @@ from kivy.clock import Clock
 from kivy.animation import Animation
 from random import shuffle
 
-# Set window size and background color
-Window.size = (720, 1280)  # 16:9 portrait
-Window.clearcolor = (1, 1, 1, 1)  # White background
+# Window setup
+Window.size = (720, 1280)
+Window.clearcolor = (1, 1, 1, 1)
 
-# Define color themes
-PRIMARY_COLOR = (0, 0, 0, 1)  # Black text
-ACCENT_COLOR = (1, 0.2, 0.4, 1)  # Pink/red
-BUTTON_BG = (0.9, 0.9, 0.9, 1)  # Light gray
+PRIMARY_COLOR = (0, 0, 0, 1)
+ACCENT_COLOR = (1, 0.2, 0.4, 1)
+BUTTON_BG = (0.9, 0.9, 0.9, 1)
 
-# Translations dictionary
 translations = {
     'en': {
         'title': "Belot Score Counter",
@@ -72,7 +72,6 @@ translations = {
 
 current_language = 'en'
 
-# Text input field with styling
 class Input(TextInput):
     def __init__(self, **kwargs):
         super().__init__(
@@ -88,18 +87,16 @@ class Input(TextInput):
             **kwargs
         )
 
-# Reusable styled button
 class KButton(Button):
     def __init__(self, **kwargs):
         kwargs.setdefault('background_normal', '')
         kwargs.setdefault('background_color', ACCENT_COLOR)
-        kwargs.setdefault('color', (1, 1, 1, 1))  # White text
+        kwargs.setdefault('color', (1, 1, 1, 1))
         kwargs.setdefault('font_size', '18sp')
         kwargs.setdefault('size_hint', (1, None))
         kwargs.setdefault('height', 60)
         super().__init__(**kwargs)
 
-# Start screen where teams are entered
 class StartScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -160,7 +157,6 @@ class StartScreen(Screen):
         self.manager.transition.direction = 'up'
         self.manager.current = 'chwazi'
 
-# Game screen to track scores and rounds
 class BelotGameScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -281,7 +277,6 @@ class BelotGameScreen(Screen):
         self.submit_btn.disabled = False
         self.update_labels()
 
-# Chwazi selection circle widget
 class PlayerCircle(Widget):
     def __init__(self, touch, color, **kwargs):
         super().__init__(**kwargs)
@@ -307,7 +302,6 @@ class PlayerCircle(Widget):
     def _update_alpha(self, anim, widget, progress):
         self.color_instr.a = 1 - progress
 
-# Chwazi team selector screen
 class ChwaziWidget(Widget):
     max_players = 4
     touch_colors = [(1, 0, 0), (0, 1, 0), (0, 0.8, 1), (1, 0.6, 0)]
@@ -370,11 +364,13 @@ class ChwaziScreen(Screen):
     def go_back(self, instance):
         self.manager.transition.direction = 'down'
         self.manager.current = 'start'
+        self.chwazi.player_circles = {}
+        self.chwazi.teams_assigned = False
+        self.chwazi.clear_widgets()
 
-# Main App class
 class BelotApp(App):
     def build(self):
-        sm = ScreenManager(transition=FadeTransition())
+        sm = ScreenManager(transition=SlideTransition(duration=0.25))
         sm.add_widget(StartScreen(name='start'))
         sm.add_widget(BelotGameScreen(name='game'))
         sm.add_widget(ChwaziScreen(name='chwazi'))
